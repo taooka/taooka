@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+
+    <link rel="icon" type="image/png" href="http://taooka.com/favicon_16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="http://taooka.com/favicon_32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="http://taooka.com/favicon_128x128.png" sizes="128x128">
+
+    <link rel="canonical" href="http://taooka.com/">
+
+    <title>
+      
+      
+         Taooka lock server 
+      
+    </title>
+    <style>
+  * {
+    border:0;
+    font:inherit;
+    font-size:100%;
+    vertical-align:baseline;
+    margin:0;
+    padding:0;
+    color: black;
+  }
+
+  body {
+    font-family:'Open Sans', 'Myriad Pro', Myriad, sans-serif;
+    font-size:17px;
+    line-height:160%;
+    color:#1d1313;
+    max-width:700px;
+    margin:auto;
+  }
+
+  p {
+    margin: 20px 0;
+  }
+
+  a img {
+    border:none;
+  }
+
+  img {
+    margin: 10px auto 10px auto;
+    max-width: 100%;
+    display: block;
+  }
+
+  pre, code {
+    font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    background-color: #f7f7f7;
+  }
+
+  code {
+    font-size: 12px;
+    padding: 4px;
+  }
+
+  pre {
+    margin-top: 0;
+    margin-bottom: 16px;
+    word-wrap: normal;
+    padding: 16px;
+    overflow: auto;
+    font-size: 85%;
+    line-height: 1.45;
+  }
+
+  pre>code {
+    padding: 0;
+    margin: 0;
+    font-size: 100%;
+    word-break: normal;
+    white-space: pre;
+    background: transparent;
+    border: 0;
+  }
+
+  pre code {
+    display: inline;
+    max-width: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    line-height: inherit;
+    word-wrap: normal;
+    background-color: transparent;
+    border: 0;
+  }
+
+  pre code::before,
+  pre code::after {
+    content: normal;
+  }
+
+  em,q,em,dfn {
+    font-style:italic;
+  }
+
+  .sans,html .gist .gist-file .gist-meta {
+    font-family:"Open Sans","Myriad Pro",Myriad,sans-serif;
+  }
+
+  .mono,pre,code,tt,p code,li code {
+    font-family:Menlo,Monaco,"Andale Mono","lucida console","Courier New",monospace;
+  }
+
+  .heading,.serif,h1,h2,h3 {
+    font-family:"Old Standard TT",serif;
+  }
+
+  strong {
+    font-weight:600;
+  }
+
+  q:before {
+    content:"\201C";
+  }
+
+  q:after {
+    content:"\201D";
+  }
+
+  del,s {
+    text-decoration:line-through;
+  }
+
+  blockquote {
+    font-family:"Old Standard TT",serif;
+    text-align:center;
+    padding:50px;
+  }
+
+  blockquote p {
+    display:inline-block;
+    font-style:italic;
+  }
+
+  blockquote:before,blockquote:after {
+    font-family:"Old Standard TT",serif;
+    content:'\201C';
+    font-size:35px;
+    color:#403c3b;
+  }
+
+  blockquote:after {
+    content:'\201D';
+  }
+
+  hr {
+    width:40%;
+    height: 1px;
+    background:#403c3b;
+    margin: 25px auto;
+  }
+
+  h1 {
+    font-size:35px;
+  }
+
+  h2 {
+    font-size:28px;
+  }
+
+  h3 {
+    font-size:22px;
+    margin-top:18px;
+  }
+
+  h1 a,h2 a,h3 a {
+    text-decoration:none;
+  }
+
+  h1,h2 {
+    margin-top:28px;
+  }
+
+  #sub-header, time {
+    color:#403c3b;
+    font-size:13px;
+  }
+
+  #sub-header {
+    margin: 0 4px;
+  }
+
+  #nav h1 a {
+    font-size:35px;
+    color:#1d1313;
+    line-height:120%;
+  }
+
+  .posts_listing a,#nav a {
+    text-decoration: none;
+  }
+
+  li {
+    margin-left: 20px;
+  }
+
+  ul li {
+    margin-left: 5px;
+  }
+
+  ul li {
+    list-style-type: none;
+  }
+  ul li:before {
+    content:"\00BB \0020";
+  }
+
+  #nav ul li:before, .posts_listing li:before {
+    content:'';
+    margin-right:0;
+  }
+
+  #content {
+    text-align:left;
+    width:100%;
+    font-size:15px;
+    padding:60px 0 80px;
+  }
+
+  #content h1,#content h2 {
+    margin-bottom:5px;
+  }
+
+  #content h2 {
+    font-size:25px;
+  }
+
+  #content .entry-content {
+    margin-top:15px;
+  }
+
+  #content time {
+    margin-left:3px;
+  }
+
+  #content h1 {
+    font-size:30px;
+  }
+
+  .highlight {
+    margin: 10px 0;
+  }
+
+  .posts_listing {
+    margin:0 0 50px;
+  }
+
+  .posts_listing li {
+    margin:0 0 25px 15px;
+  }
+
+  .posts_listing li a:hover,#nav a:hover {
+    text-decoration: underline;
+  }
+
+  #nav {
+    text-align:center;
+    position:static;
+    margin-top:60px;
+  }
+
+  #nav ul {
+    display: table;
+    margin: 8px auto 0 auto;
+  }
+
+  #nav li {
+    list-style-type:none;
+    display:table-cell;
+    font-size:15px;
+    padding: 0 20px;
+  }
+
+  #links {
+    margin: 50px 0 0 0;
+  }
+
+  #links :nth-child(2) {
+    float:right;
+  }
+
+  #not-found {
+    text-align: center;
+  }
+
+  #not-found a {
+    font-family:"Old Standard TT",serif;
+    font-size: 200px;
+    text-decoration: none;
+    display: inline-block;
+    padding-top: 225px;
+  }
+
+  @media (max-width: 750px) {
+    body {
+      padding-left:20px;
+      padding-right:20px;
+    }
+
+    #nav h1 a {
+      font-size:28px;
+    }
+
+    #nav li {
+      font-size:13px;
+      padding: 0 15px;
+    }
+
+    #content {
+      margin-top:0;
+      padding-top:50px;
+      font-size:14px;
+    }
+
+    #content h1 {
+      font-size:25px;
+    }
+
+    #content h2 {
+      font-size:22px;
+    }
+
+    .posts_listing li div {
+      font-size:12px;
+    }
+  }
+
+  @media (max-width: 400px) {
+    body {
+      padding-left:20px;
+      padding-right:20px;
+    }
+
+    #nav h1 a {
+      font-size:22px;
+    }
+
+    #nav li {
+      font-size:12px;
+      padding: 0 10px;
+    }
+
+    #content {
+      margin-top:0;
+      padding-top:20px;
+      font-size:12px;
+    }
+
+    #content h1 {
+      font-size:20px;
+    }
+
+    #content h2 {
+      font-size:18px;
+    }
+
+    .posts_listing li div{
+      font-size:12px;
+    }
+  }
+</style>
+
+  </head>
+
+  <body>
+    <section id=nav>
+      <ul>
+        
+          <li><a href="http://taooka.com/download/">Download</a></li>
+        
+          <li><a href="http://taooka.com/contact/">Contact</a></li>
+        
+      </ul>
+      <h1><a href="http://taooka.com/"><img src="http://taooka.com/logo.png">Taooka</a></h1>
+      <h2>Add some consistency to a distributed system</h2>
+    </section>
+
+
+<section id=content>
+
+
+<h1 id="what-is-taooka">What is Taooka</h1>
+
+<p>Taooka helps you organize multiple processes’ access to a shared resource: change files chunked on some remote servers, rewrite records sharded in several databases, chose background jobs to process&hellip; Even if you simply save the user’s avatar on disk and change related  record in database, you need a Taooka for consistency. This allows you to create consistent distributed storage on top of ordinary file systems and simple databases without complicated software.</p>
+
+<p>Taooka uses a <q>mutex (mutual exclusion)</q> that works over the network. The mutex is used for protecting parts of code from running concurrently. For example, you can try to lock the object, work with it and unlock it for another process. No one can work with a locked object, exclude you.</p>
+
+<p>Taooka prevent <q>race conditions</q> because it uses mutual exclusion to ensure that it is impossible to update the same part of the object at the same time.</p>
+
+<p>Taooka is <q>deadlock</q>-free. It use try-lock instead of usual lock.</p>
+
+<p>Taooka is free for developers. <!--See [intallation instruction](/doc/) or [ask question](/support/).--></p>
+
+<h1 id="system-requirements">System requirements</h1>
+
+<p>OS:</p>
+
+<ul>
+<li>Linux 2.6.23 or later (3.9 is better, 4.5 or later is mutch better);</li>
+<li>Mac OS X 10.8 or later;</li>
+<li>FreeBSD 8-STABLE or later;</li>
+<li>Windows XP or later.</li>
+</ul>
+
+<p>Architectures:</p>
+
+<ul>
+<li>amd64;</li>
+<li>i386.</li>
+</ul>
+
+<h1 id="performance">Performance</h1>
+
+<p>More than 200000 requests per second on Linux box S5000PAL with Intel Xeon E5430 2.66GHz (2 CPUs x 4 cores), 2 integrated 1G NICs.</p>
+
+<h1 id="client-library">Client library</h1>
+
+<p>Golang: <a href="https://github.com/MichaelMonashev/sync">sync/netmutex</a></p>
+
+<h1 id="quickstart">Quickstart</h1>
+
+<h2 id="linux">Linux</h2>
+
+<pre><code>$ wget http://taooka.com/dl/0.0.1-preview/taooka_0.0.1-preview_amd64.deb
+$ sudo dpkg -i taooka_0.0.1-preview_amd64.deb
+$ taooka -h
+$ taooka
+</code></pre>
+
+<h1 id="example">Example</h1>
+
+<p>See the sample code that uses locks in <a href="https://godoc.org/github.com/MichaelMonashev/sync/netmutex#ex-package">sync/netmutex godoc</a>.</p>
+
+<h1 id="use-cases">Use cases</h1>
+
+<p>All sample code written on pseudo-language.</p>
+
+<h2 id="serializing-remote-variable-changes">Serializing remote variable changes</h2>
+
+<p>No one does Inc() twice before Append() or Append() twice after Inc(). Always one Inc() and after one Append().</p>
+
+<pre><code>key = &quot;test_key&quot;
+if taooka.Lock(key, time.Minute) {
+	memcached.Inc(key)
+	memcached.Append(key, &quot;0&quot;) // multiply by 10
+	taooka.Unlock(key)
+}
+</code></pre>
+
+<h2 id="cas-check-and-set-alternative">CAS (Check And Set) alternative</h2>
+
+<p>Useful in high concurrency cases then CAS command usually return “EXISTS” error.</p>
+
+<pre><code>key = &quot;test_key&quot;
+if taooka.Lock(key, time.Minute) {
+	value = memcached.Get(key)
+
+	// modify value
+	...
+
+	memcached.Set(key, value)
+	taooka.Unlock(key)
+}
+</code></pre>
+
+<h2 id="select-jobs-to-process">Select jobs to process</h2>
+
+<p>This is a worker that select one job and processes it. Many workers can work in parallel on many boxes, but each job will be processed only once. A worker can die, another worker will process its job after 1 hour.</p>
+
+<pre><code>for {
+	jobID, jobParams = sql.do(&quot;SELECT id, params FROM jobs WHERE start_time &lt; DATE_SUB(NOW(), INTERVAL 1 HOUR) LIMIT 1&quot;)
+	if taooka.Lock(jobID, time.Minutes * 50) {
+		sql.do(&quot;UPDATE jobs SET start_time = NOW() WHERE id=&quot;,jobID)
+
+		// process job here
+		...
+
+		jobID = sql.do(&quot;DELETE FROM jobs WHERE id=&quot;,jobID)
+		taooka.UnLock(jobID)
+	}
+}
+</code></pre>
+
+<p>Adding new job:</p>
+
+<pre><code>sql.do(&quot;INSERT INTO jobs SET params=&quot;, jobParams)
+</code></pre>
+
+<h2 id="changing-the-user-avatar-in-the-database-and-file-storage">Changing the user avatar in the database and file storage</h2>
+
+<pre><code>i=0
+for {
+	if taooka.Lock(user.ID, 5 * time.Second) {
+		switch action {
+		case &quot;delete_avatar&quot;:
+			deleteFile(user.ID)
+			user.avatar = &quot;&quot;
+		case &quot;add_avatar&quot;:
+			avatartFileName = uploadFile(user.ID, avatarFile)
+			user.avatar = avatartFileName
+		}
+		user.Update()
+		taooka.Unlock(user.ID)
+		break
+	}
+
+	i++
+	if i==10 {
+		return &quot;Come back later...&quot;
+	}
+}
+</code></pre>
+
+<p>Note: this code is not fault-tolerant.</p>
+
+<h2 id="move-a-user-from-an-overloaded-database-server-to-another">Move a user from an overloaded database server to another</h2>
+
+<p>Lock the user only then is really necessary. Not always.</p>
+
+<p>The code of the script that moves the user:</p>
+
+<pre><code>user.needLocks = true
+user.Update() // write changes to memcached and database
+
+if taooka.Lock(user.ID, time.Minute) {
+	moveToAnUnloadedDB(user)
+	taooka.Unlock(user.ID)
+}
+
+user.needLocks = false
+user.Update()
+</code></pre>
+
+<p>The code in ALL other places where we read or write the user object:</p>
+
+<pre><code>if user.needLocks {
+	if taooka.Lock(user.ID, time.Minute) {
+		doSomethingWith(user)
+		taooka.Unlock(user.ID)
+	}
+	else {
+		return &quot;wait please...&quot;
+	}
+}
+else {
+	doSomethingWith(user)
+}
+
+</code></pre>
+
+<h2 id="transfer-money-between-users-located-in-different-databases">Transfer money between users located in different databases</h2>
+
+<pre><code>if taooka.Lock(srcUser.ID, time.Minute) {
+
+	if srcUser.Balance &lt; transferSum {
+		taooka.Unlock(srcUser.ID)
+		return &quot;Not enough money&quot;
+	}
+
+	if taooka.Lock(dstUser.ID, time.Minute) {
+		
+		srcSQLServer = GetSQLServerFor(srcUser)
+		dstSQLServer = GetSQLServerFor(dstUser)
+
+		transferID = journalSQLServer.do(&quot;INSERT INTO money_transfer SET start_time=NOW()&quot;)
+
+		srcSQLServer.do(&quot;INSERT INTO money_log SET transfer_id=&quot;, transferID, &quot;, user_id=&quot;, srcUser.ID, &quot;, sum=&quot;, -transferSum)
+		dstSQLServer.do(&quot;INSERT INTO money_log SET transfer_id=&quot;, transferID, &quot;, user_id=&quot;, dstUser.ID, &quot;, sum=&quot;, transferSum)
+
+		journalSQLServer.do(&quot;DELETE FROM money_transfer WHERE id=&quot;, transferID)
+
+		taooka.Unlock(dstUser.ID)
+		taooka.Unlock(srcUser.ID)
+
+		return &quot;Ok&quot;
+	}
+
+	taooka.Unlock(srcUser.ID)
+	return &quot;wait please...&quot;
+
+}
+else {
+	return &quot;wait please...&quot;
+}
+
+</code></pre>
+
+<p>And run in the background one or more copies of this code to roll back a partial transfer of money.</p>
+
+<pre><code>for {
+	partialTransferID = journalSQLServer.do(&quot;SELECT id FROM money_transfer WHERE start_time &lt; DATE_SUB(NOW(), INTERVAL 1 MINUTE) LIMIT 1&quot;)
+	
+	if partialTransferID &gt; 0 {
+		foreach sql in SQLServers {
+			sql.do(&quot;DELETE FROM money_log WHERE transfer_id=&quot;, partialTransferID)
+		}
+		journalSQLServer.do(&quot;DELETE FROM money_transfer WHERE id=&quot;, partialTransferID)
+		continue
+	}
+
+	Sleep(time.Second)
+}
+</code></pre>
+
+<!--
+## Simple "key-value" distributed file storage
+
+Add new file:
+```
+
+fileChunks = Split(file)
+fileMetada = Metadata{
+	Name: file.Name,
+	Chunks: fileChunks
+}
+
+journalNode =
+chunkNodes =
+metadataNodes =
+
+if taooka.Lock(file.Name) {
+	// remember
+	journalNode.sql("")
+
+}
+else {
+	return "wait please..."
+}
+```
+-->
+
+</section>
+
+  
+</body>
+</html>
