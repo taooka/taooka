@@ -393,13 +393,13 @@
 
 <h1 id="what-is-taooka">What is Taooka</h1>
 
-<p>Taooka helps you organize multiple processes’ access to a shared resource: change files chunked on some remote servers, rewrite records sharded in several databases, chose background jobs to process&hellip; Even if you simply save the user’s avatar on disk and change related  record in database, you need a Taooka for consistency. This allows you to create consistent distributed storage on top of ordinary file systems and simple databases without complicated software.</p>
+<p>Taooka helps you organize multiple processes’ access to a shared resource: change files chunked on some remote servers, rewrite records sharded in several databases, chose background jobs to process&hellip; Even if you simply save the user’s avatar on disk and change related record in the database, you need Taooka for consistency. This allows you to create consistent distributed storage on top of ordinary file systems and simple databases (like NoSQL) without complicated software.</p>
 
 <p>Taooka uses a <q>mutex (mutual exclusion)</q> that works over the network. The mutex is used for protecting parts of code from running concurrently. For example, you can try to lock the object, work with it and unlock it for another process. No one can work with a locked object, exclude you.</p>
 
-<p>Taooka prevent <q>race conditions</q> because it uses mutual exclusion to ensure that it is impossible to update the same part of the object at the same time.</p>
+<p>Taooka prevents <q>race conditions</q> because it uses mutual exclusion to ensure that it is impossible to update the same part of the object at the same time.</p>
 
-<p>Taooka is <q>deadlock</q>-free. It use try-lock instead of usual lock.</p>
+<p>Taooka is <q>deadlock</q>-free. It uses try-lock instead of usual lock.</p>
 
 <p>Taooka is free for developers. <!--See [intallation instruction](/doc/) or [ask question](/support/).--></p>
 
@@ -445,7 +445,7 @@ $ taooka
 
 <h1 id="use-cases">Use cases</h1>
 
-<p>All sample code written on pseudo-language.</p>
+<p>The entire sample code is written in a pseudo-language.</p>
 
 <h2 id="serializing-remote-variable-changes">Serializing remote variable changes</h2>
 
@@ -461,7 +461,7 @@ if taooka.Lock(key, time.Minute) {
 
 <h2 id="cas-check-and-set-alternative">CAS (Check And Set) alternative</h2>
 
-<p>Useful in high concurrency cases then CAS command usually return “EXISTS” error.</p>
+<p>Useful in cases with high concurrency, then the CAS command usually returns an &ldquo;EXISTS&rdquo; error.</p>
 
 <pre><code>key = &quot;test_key&quot;
 if taooka.Lock(key, time.Minute) {
@@ -477,7 +477,7 @@ if taooka.Lock(key, time.Minute) {
 
 <h2 id="select-jobs-to-process">Select jobs to process</h2>
 
-<p>This is a worker that select one job and processes it. Many workers can work in parallel on many boxes, but each job will be processed only once. A worker can die, another worker will process its job after 1 hour.</p>
+<p>This is a worker that select job one by one and processes it. Many workers can work in parallel on many boxes, but each job will be processed only once. A worker can die, another worker will process its job after 1 hour.</p>
 
 <pre><code>for {
 	jobID, jobParams = sql.do(&quot;SELECT id, params FROM jobs WHERE start_time &lt; DATE_SUB(NOW(), INTERVAL 1 HOUR) LIMIT 1&quot;)
@@ -527,7 +527,7 @@ for {
 
 <h2 id="move-a-user-from-an-overloaded-database-server-to-another">Move a user from an overloaded database server to another</h2>
 
-<p>Lock the user only then is really necessary. Not always.</p>
+<p>Lock a user only then it is really necessary. Not always.</p>
 
 <p>The code of the script that moves the user:</p>
 
@@ -597,7 +597,7 @@ else {
 
 </code></pre>
 
-<p>And run in the background one or more copies of this code to roll back a partial transfer of money.</p>
+<p>And run in the background one or more copies of this code to roll back partially translated money.</p>
 
 <pre><code>for {
 	partialTransferID = journalSQLServer.do(&quot;SELECT id FROM money_transfer WHERE start_time &lt; DATE_SUB(NOW(), INTERVAL 1 MINUTE) LIMIT 1&quot;)
@@ -644,5 +644,12 @@ else {
 </section>
 
   
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-85639-18', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
 </body>
 </html>
