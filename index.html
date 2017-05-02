@@ -17,7 +17,7 @@
     <title>
       
       
-         Taooka lock server 
+         Taooka distributed lock manager 
       
     </title>
     <style>
@@ -393,7 +393,7 @@
 
 <h1 id="what-is-taooka">What is Taooka</h1>
 
-<p>Taooka helps you organize multiple processes’ access to a shared resource: change files chunked on some remote servers, rewrite records sharded in several databases, chose background jobs to process&hellip; Even if you simply save the user’s avatar on disk and change related record in the database, you need Taooka for consistency. This allows you to create consistent distributed storage on top of ordinary file systems and simple databases (like NoSQL) without complicated software.</p>
+<p>Taooka helps you organize multiple processes’ access to a shared or partitioned resource: change files chunked on some remote servers, rewrite records sharded in several databases, chose background jobs to process&hellip; Even if you simply save the user’s avatar on disk and change related record in the database, you need Taooka for consistency. This allows you to create consistent distributed storage on top of ordinary file systems and simple databases (like NoSQL) without complicated software.</p>
 
 <p>Taooka uses a <q>mutex (mutual exclusion)</q> that works over the network. The mutex is used for protecting parts of code from running concurrently. For example, you can try to lock the object, work with it and unlock it for another process. No one can work with a locked object, exclude you.</p>
 
