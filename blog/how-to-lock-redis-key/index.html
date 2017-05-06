@@ -17,12 +17,12 @@
     <meta name="msapplication-TileImage" content="/mstile-144x144.png">
     <meta name="theme-color" content="#ffffff">
 
-    <link rel="canonical" href="http://taooka.com/blog/">
+    <link rel="canonical" href="http://taooka.com/blog/how-to-lock-redis-key/">
 
     <title>
       
       
-         Taooka blog 
+         How to lock redis key. 
       
     </title>
     <style>
@@ -394,16 +394,153 @@
 
 
 <section id=content>
-  <ul class=posts_listing>
+  <h1> How to lock redis key. </h1>
+
+  <div id=sub-header>
+    May 2017 · 3 minute read
+  </div>
+
+  <div class="entry-content">
+    <p>Redis is in-memory data storage. It is useful in many different cases. Sometimes we need to protect some data in Redis against race condition. This happens when you want to change a data, but it is impossible to change it atomically inside Redis. Or data consist of several parts that must be changed synchronously.</p>
+
+<p>For example, we need to display the last 10 numbered requests to an object. We have to get the next request number and a list of the last hits, parse it, remove the extra rows, add a new row and save it back to Redis. Between reading from Radis and writing the changed data, another process can read and write its requests to the object. To prevent this, we lock access to the list of the most recent hits and to the counter with the request number. For locks, we use the Taooka distributed lock manager. Source code:</p>
+
+<pre><code>package main
+
+import (
+	&quot;fmt&quot;
+	&quot;os&quot;
+	&quot;os/user&quot;
+	&quot;strings&quot;
+	&quot;time&quot;
+
+	&quot;github.com/MichaelMonashev/sync/netmutex&quot;
+	&quot;github.com/go-redis/redis&quot;
+)
+
+func main() {
+
+	// connect to Redis
+	redisClient := redis.NewClient(&amp;redis.Options{
+		Addr:     &quot;localhost:6379&quot;,
+		Password: &quot;&quot;, // no password set
+		DB:       0,  // use default DB
+	})
+	defer redisClient.Close()
+
+	// connect to Taooka ditributed lock manager
+	taookaClient, err := netmutex.Open(2, 2*time.Second, []string{
+		&quot;localhost:15663&quot;,
+	}, nil)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, &quot;Can`t connect to Taooka servers:&quot;, err)
+		return
+	}
+	defer taookaClient.Close(1, time.Second)
+
+	// create lock
+	l := taookaClient.NewLock()
+
+	key := &quot;recent_users&quot;
+
+	// Try to lock key
+	err = l.Lock(10, time.Second, key, time.Minute)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, &quot;Can`t lock key:&quot;, err)
+		return
+	}
+	defer l.Unlock(1, time.Second)
+
+	// get next line number
+	res1 := redisClient.Incr(key + &quot;_counter&quot;)
+
+	lineNum, err := res1.Result()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, &quot;Wrong counter value:&quot;, err)
+		return
+	}
+
+	// generate current log row
+	host, err := os.Hostname()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, &quot;Can`t get hostname:&quot;, err)
+		return
+	}
+
+	curentUser, err := user.Current()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, &quot;Can`t get current user:&quot;, err)
+		return
+	}
+
+	cur := fmt.Sprintf(&quot;%d Hostname:%s User:%s&quot;, lineNum, host, curentUser.Username)
+
+	// get log rows
+	res2 := redisClient.Get(key)
+
+	recentUsers, err := res2.Result()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, &quot;Can`t get recent users:&quot;, err)
+		return
+	}
+
+	a := strings.Split(recentUsers, &quot;\n&quot;)
+
+	// cut
+	if len(a) &gt; 10 {
+		a = a[1:10]
+	}
+
+	// add current log row
+	a = append(a, cur)
+
+	recentUsers = strings.Join(a, &quot;\n&quot;)
+
+	// save updated log rows
+	redisClient.Set(key, recentUsers, 0)
+
+	fmt.Println(&quot;Recent users:\n&quot;, recentUsers)
+}
+</code></pre>
+
+<p>After many launches, it will show something like this:</p>
+
+<pre><code>154 Hostname:srv1 User:michael
+155 Hostname:dev User:admin
+156 Hostname:srv16 User:peter
+157 Hostname:dev User:michael
+158 Hostname:srv1 User:michael
+159 Hostname:srv1 User:admin
+160 Hostname:srv1 User:michael
+161 Hostname:dev User:michael
+162 Hostname:win12 User:win12\michael
+163 Hostname:www User:dave
+</code></pre>
+
+<p>If we do all these operations without blocking, then at a simultaneous request to Radis some lines may be lost.</p>
+
+<pre><code>159 Hostname:srv1 User:admin
+160 Hostname:srv1 User:michael
+161 Hostname:dev User:michael
+162 Hostname:win12 User:win12\michael
+163 Hostname:www User:dave
+164 Hostname:srv1 User:michael
+165 Hostname:dev User:michael
+166 Hostname:orion User:jack
+168 Hostname:www User:dave
+169 Hostname:www User:dave
+</code></pre>
+
+<p>There was a missed line numbered 167.</p>
+
+<p>You reasonably ask, why use Taooka, if the lock can be implemented using Redis: <a href="https://redis.io/topics/distlock">Redlock</a>. I will answer. There is an opinion that, <a href="http://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html">the Redlock algorithm is a poor choice</a>. You can read the description of the algorithm, Martin Kleppmann`s article и <a href="http://antirez.com/news/101">objections of the author Redlock</a> and decide for yourself whether Redlock is safe or not.  I think that Martin Kleppmann is right. Or use Taooka. It takes into account the problems described by Martin Kleppmann and allows to isolate the broken client from the data with which it operates. Until the isolation is complete, no other client can get a lock.</p>
+
+  </div>
+
+  <div id=links>
     
-      <li>
-        <h2><a href="http://taooka.com/blog/how-to-lock-redis-key/">How to lock redis key.</a></h2>
-        <div id=date>
-          <time>May 2017</time>
-        </div>
-      </li>
     
-  </ul>
+  </div>
 </section>
 
   

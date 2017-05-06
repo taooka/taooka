@@ -396,7 +396,7 @@
 <section id=content>
 
 
-<h1 id="what-is-taooka">What is Taooka</h1>
+<h1 id="what-is-taooka">What is Taooka?</h1>
 
 <p>Taooka is distributed lock manager. It helps you organize multiple processes’ access to a shared or partitioned resource: change files chunked on some remote servers, rewrite records sharded in several databases, chose background jobs to process&hellip; Even if you simply save the user’s avatar on disk and change related record in the database, you need Taooka for consistency. This allows you to create consistent distributed storage on top of ordinary file systems and simple databases (like NoSQL) without complicated software.</p>
 
@@ -407,6 +407,19 @@
 <p>Taooka is <q>deadlock</q>-free. It uses try-lock instead of usual lock.</p>
 
 <p>Taooka is free for developers. <!--See [intallation instruction](/doc/) or [ask question](/support/).--></p>
+
+<h1 id="features">Features</h1>
+
+<ul>
+<li>lock ttl(time to live) in nanoseconds. You are not limited to 1 second accuracy;</li>
+<li>automatically detects broken clients and isolates them from the data they are working with;</li>
+<li>heartbeat for long lasting locks;</li>
+<li>uses a lightweight and simple binary protocol on top of UDP. This saves network resources, RAM and CPU for storing, copying, parsing text based protocols (HTTP, URL, JSON, XML, etc.) and maintaining a connection (TCP);</li>
+<li>crosspatform. Works on Linux, Mac OS, FreeBSD and Windows;</li>
+<li>no dependencies;</li>
+<li>easier to configure OS and network adapters for high load;</li>
+<li>extremely fast.</li>
+</ul>
 
 <h1 id="system-requirements">System requirements</h1>
 
@@ -442,6 +455,11 @@
 $ sudo dpkg -i taooka_0.0.1-preview_amd64.deb
 $ taooka -h
 $ taooka
+</code></pre>
+
+<p>Start as daemon:</p>
+
+<pre><code>$ daemonize -v -p /var/run/taooka.pid -l /var/run/taooka.pid -u nobody -e /path/to/error.log /path/to/taooka
 </code></pre>
 
 <h1 id="example">Example</h1>
