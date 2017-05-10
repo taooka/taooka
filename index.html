@@ -383,6 +383,8 @@
     <section id=nav>
       <ul>
         
+          <li><a href="https://github.com/MichaelMonashev/sync">GitHub</a></li>
+        
           <li><a href="http://taooka.com/download/">Download</a></li>
         
           <li><a href="http://taooka.com/blog/">Blog</a></li>
@@ -408,12 +410,14 @@
 
 <p>Taooka is <q>deadlock</q>-free. It uses try-lock instead of usual lock.</p>
 
-<p>Taooka is free for developers. <!--See [intallation instruction](/doc/) or [ask question](/support/).--></p>
+<h1 id="how-can-i-use-it">How can I use it?</h1>
+
+<p>Taooka is free for developers and small startups. See <a href="http://taooka.com/download/">download page</a> or <a href="http://taooka.com/contact/">ask question</a>.</p>
 
 <h1 id="features">Features</h1>
 
 <ul>
-<li>lock ttl(time to live) in nanoseconds. You are not limited to 1 second accuracy;</li>
+<li>lock ttl (time to live) in nanoseconds. You are not limited to 1 second accuracy;</li>
 <li>automatically detects broken clients and isolates them from the data they are working with;</li>
 <li>heartbeat for long lasting locks;</li>
 <li>uses a lightweight and simple binary protocol on top of UDP. This saves network resources, RAM and CPU for storing, copying, parsing text based protocols (HTTP, URL, JSON, XML, etc.) and maintaining a connection (TCP);</li>
@@ -444,6 +448,14 @@
 <h1 id="performance">Performance</h1>
 
 <p>More than 200000 requests per second on Linux box S5000PAL with Intel Xeon E5430 2.66GHz (2 CPUs x 4 cores), 2 integrated 1G NICs.</p>
+
+<h1 id="scaling-by-partitioning">Scaling by partitioning</h1>
+
+<p>It&rsquo;s easy to split the key space into parts using <code>hash(key)</code> and run an instance of Taooka for each part.</p>
+
+<h1 id="fault-tolerance">Fault tolerance</h1>
+
+<p>The distributed version of Taooka is under development. It uses consensus to commit locks.</p>
 
 <h1 id="client-library">Client library</h1>
 
