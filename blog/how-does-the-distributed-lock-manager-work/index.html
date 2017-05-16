@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+
+    <link rel="apple-touch-icon" sizes="180x180" href="http://taooka.com/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="http://taooka.com/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="http://taooka.com/favicon-16x16.png">
+    <link rel="manifest" href="http://taooka.com/manifest.json">
+    <link rel="mask-icon" href="http://taooka.com/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <link rel="canonical" href="http://taooka.com/blog/how-does-the-distributed-lock-manager-work/">
+
+    <title>
+      
+      
+         Как работает менеджер распределённых блокировок. 
+      
+    </title>
+    <style>
+  * {
+    border:0;
+    font:inherit;
+    font-size:100%;
+    vertical-align:baseline;
+    margin:0;
+    padding:0;
+    color: black;
+  }
+
+  body {
+    font-family:'Open Sans', 'Myriad Pro', Myriad, sans-serif;
+    font-size:17px;
+    line-height:160%;
+    color:#1d1313;
+    max-width:700px;
+    margin:auto;
+  }
+
+  p {
+    margin: 20px 0;
+  }
+
+  a img {
+    border:none;
+  }
+
+  img {
+    margin: 10px auto 10px auto;
+    max-width: 100%;
+    display: block;
+  }
+
+  pre, code {
+    font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    background-color: #f7f7f7;
+  }
+
+  code {
+    font-size: 12px;
+    padding: 4px;
+  }
+
+  pre {
+    margin-top: 0;
+    margin-bottom: 16px;
+    word-wrap: normal;
+    padding: 16px;
+    overflow: auto;
+    font-size: 85%;
+    line-height: 1.45;
+  }
+
+  pre>code {
+    padding: 0;
+    margin: 0;
+    font-size: 100%;
+    word-break: normal;
+    white-space: pre;
+    background: transparent;
+    border: 0;
+  }
+
+  pre code {
+    display: inline;
+    max-width: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    line-height: inherit;
+    word-wrap: normal;
+    background-color: transparent;
+    border: 0;
+  }
+
+  pre code::before,
+  pre code::after {
+    content: normal;
+  }
+
+  em,q,em,dfn {
+    font-style:italic;
+  }
+
+  .sans,html .gist .gist-file .gist-meta {
+    font-family:"Open Sans","Myriad Pro",Myriad,sans-serif;
+  }
+
+  .mono,pre,code,tt,p code,li code {
+    font-family:Menlo,Monaco,"Andale Mono","lucida console","Courier New",monospace;
+  }
+
+  .heading,.serif,h1,h2,h3 {
+    font-family:"Old Standard TT",serif;
+  }
+
+  strong {
+    font-weight:600;
+  }
+
+  q:before {
+    content:"\201C";
+  }
+
+  q:after {
+    content:"\201D";
+  }
+
+  del,s {
+    text-decoration:line-through;
+  }
+
+  blockquote {
+    font-family:"Old Standard TT",serif;
+    text-align:center;
+    padding:50px;
+  }
+
+  blockquote p {
+    display:inline-block;
+    font-style:italic;
+  }
+
+  blockquote:before,blockquote:after {
+    font-family:"Old Standard TT",serif;
+    content:'\201C';
+    font-size:35px;
+    color:#403c3b;
+  }
+
+  blockquote:after {
+    content:'\201D';
+  }
+
+  hr {
+    width:40%;
+    height: 1px;
+    background:#403c3b;
+    margin: 25px auto;
+  }
+
+  h1 {
+    font-size:35px;
+  }
+
+  h2 {
+    font-size:28px;
+  }
+
+  h3 {
+    font-size:22px;
+    margin-top:18px;
+  }
+
+  h1 a,h2 a,h3 a {
+    text-decoration:none;
+  }
+
+  h1,h2 {
+    margin-top:28px;
+  }
+
+  #sub-header, time {
+    color:#403c3b;
+    font-size:13px;
+  }
+
+  #sub-header {
+    margin: 0 4px;
+  }
+
+  #nav h1 a {
+    font-size:35px;
+    color:#1d1313;
+    line-height:120%;
+  }
+
+  .posts_listing a,#nav a {
+    text-decoration: none;
+  }
+
+  li {
+    margin-left: 20px;
+  }
+
+  ul li {
+    margin-left: 5px;
+  }
+
+  ul li {
+    list-style-type: none;
+  }
+  ul li:before {
+    content:"\00BB \0020";
+  }
+
+  #nav ul li:before, .posts_listing li:before {
+    content:'';
+    margin-right:0;
+  }
+
+  #content {
+    text-align:left;
+    width:100%;
+    font-size:15px;
+    padding:60px 0 80px;
+  }
+
+  #content h1,#content h2 {
+    margin-bottom:5px;
+  }
+
+  #content h2 {
+    font-size:25px;
+  }
+
+  #content .entry-content {
+    margin-top:15px;
+  }
+
+  #content time {
+    margin-left:3px;
+  }
+
+  #content h1 {
+    font-size:30px;
+  }
+
+  .highlight {
+    margin: 10px 0;
+  }
+
+  .posts_listing {
+    margin:0 0 50px;
+  }
+
+  .posts_listing li {
+    margin:0 0 25px 15px;
+  }
+
+  .posts_listing li a:hover,#nav a:hover {
+    text-decoration: underline;
+  }
+
+  #nav {
+    text-align:center;
+    position:static;
+    margin-top:60px;
+  }
+
+  #nav ul {
+    display: table;
+    margin: 8px auto 0 auto;
+  }
+
+  #nav li {
+    list-style-type:none;
+    display:table-cell;
+    font-size:15px;
+    padding: 0 20px;
+  }
+
+  #links {
+    margin: 50px 0 0 0;
+  }
+
+  #links :nth-child(2) {
+    float:right;
+  }
+
+  #not-found {
+    text-align: center;
+  }
+
+  #not-found a {
+    font-family:"Old Standard TT",serif;
+    font-size: 200px;
+    text-decoration: none;
+    display: inline-block;
+    padding-top: 225px;
+  }
+
+  @media (max-width: 750px) {
+    body {
+      padding-left:20px;
+      padding-right:20px;
+    }
+
+    #nav h1 a {
+      font-size:28px;
+    }
+
+    #nav li {
+      font-size:13px;
+      padding: 0 15px;
+    }
+
+    #content {
+      margin-top:0;
+      padding-top:50px;
+      font-size:14px;
+    }
+
+    #content h1 {
+      font-size:25px;
+    }
+
+    #content h2 {
+      font-size:22px;
+    }
+
+    .posts_listing li div {
+      font-size:12px;
+    }
+  }
+
+  @media (max-width: 400px) {
+    body {
+      padding-left:20px;
+      padding-right:20px;
+    }
+
+    #nav h1 a {
+      font-size:22px;
+    }
+
+    #nav li {
+      font-size:12px;
+      padding: 0 10px;
+    }
+
+    #content {
+      margin-top:0;
+      padding-top:20px;
+      font-size:12px;
+    }
+
+    #content h1 {
+      font-size:20px;
+    }
+
+    #content h2 {
+      font-size:18px;
+    }
+
+    .posts_listing li div{
+      font-size:12px;
+    }
+  }
+</style>
+
+  </head>
+
+  <body>
+    <section id=nav>
+      <ul>
+        
+          <li><a href="https://github.com/MichaelMonashev/sync">GitHub</a></li>
+        
+          <li><a href="http://taooka.com/download/">Download</a></li>
+        
+          <li><a href="http://taooka.com/blog/">Blog</a></li>
+        
+          <li><a href="http://taooka.com/contact/">Contact</a></li>
+        
+      </ul>
+      <h1><a href="http://taooka.com/"><img src="http://taooka.com/logo.png">Taooka</a></h1>
+      <h2>Add some consistency to a distributed system</h2>
+    </section>
+
+
+<section id=content>
+  <h1> Как работает менеджер распределённых блокировок. </h1>
+
+  <div id=sub-header>
+    May 2017 · 4 minute read
+  </div>
+
+  <div class="entry-content">
+    <p>Все програмимисты, а особенно гоферы, знакомы с mutex-ами. Они применяются очень давно. С тех времён, как появилась мультизадачность, а может и раньше. Когда же компьютеры стали взаимодействовать друг с другом, появилась потребность в mutex-ах, работающих не локально, а по сети. Сначала их всячески прятали от программиста внутри баз данных, потом внутри распределённых баз данных. Затем их начали пытаться создавать поверх NoSQL хранилищ: <a href="https://redis.io/topics/distlock">RedLock</a>. Потребность в них становилась очевидной, а имеющиеся решения имели разного рода особенности, не позволяющие применять их широко. Taooka же изначально создавалась именно как менеджер распределённых блокировок, и потому, по нашему мнению, умеет их делать более корректно.</p>
+
+<p>Блокировки обычно используются в двух случаях:</p>
+
+<ol>
+<li><p>Cамый популярный: когда что-то нужно делать монопольно. Пример: несколько процессов работают с одним файлом. Чтобы не перезатереть данные друг-друга и не испортить файл, каждый процесс блокирует доступ к файлу, работает с ним и отпускает блокировку, позволяя другим процессам взять блокировку и так же поработать с файлом. Целостность файла не нарушается, данные в нём не теряются.</p></li>
+
+<li><p>Когда что-то нужно сделать единожды. Например, сконвертировать видео в другой формат. Если видео будет сконвертировано дважды, то мы зря потратим процессорное время и соотвественно заплатим за это денег.</p></li>
+</ol>
+
+<p>Расмотрим проблемы, возникающие с блокировками, работающими по сети. Очевидно, что когда один процесс взял блокировку, остальные процессы вынуждены ждать. И тут возникает первая проблема: а что будет, если взявший блокировку процесс сломается, например, зависнет и никогда не отпустит блокировку. Все остальные процессы будут вечно ждать, и работа остановится.</p>
+
+<p><img src="http://taooka.com/blog/client-hang.svg" alt="client 1 hang" /></p>
+
+<p>Надо сказать пару слов, почему процесс может сломаться. Самое вероятное, он почему-то умрёт. Его может прибить <a href="http://linux-mm.org/OOM_Killer">Out-of-Memory Killer</a>, может произойти <a href="https://en.wikipedia.org/wiki/Segmentation_fault">segmentation fault</a>, человеческий фактор. Также возможно, что процесс на довольно продолжительное время зависнет. Он может обратиться к участку памяти, находящемуся в свопе; сам своп может быть не на локальном диске, а доспупен по сети, а в сети могут быть проблемы и чтение данных из свопа может занять много времени. Зависнуть может виртуальная машина, в которой работает клиент, ибо сервер перегружен или она переезжает на другой сервер. Процессу могли послать сигнал SIGSTOP. Причин может быть множество, и чем сложнее окружение, в котором работает клиент, тем менее предсказуемо поведение клиента. И потому надо быть готовым с ними справляться.</p>
+
+<p>Очевидно решение этой проблемы со сломавшимся клиентом - ввести время жизни блокировки (TTL - time to live). Когда это время истечёт, то другие процессы смогут взять блокировку и продолжить работать. Этот подход реализован в большинстве блокировок, работающих по сети.</p>
+
+<p><img src="http://taooka.com/blog/client-hang-ttl.svg" alt="client 1 hang with TTL" /></p>
+
+<p>К сожалению, большинство считает такой подход достаточным. Но это не так. Если процесс, взявший блокировку, не умер, а завис, то в какой-то момент времени он может вдруг отвиснуть и продолжить работу. Появится ещё одна проблема: два процесса меняют одни и те же данные. Монопольный доступ к данным, который мы ожидали от блокировок, пропадёт.</p>
+
+<p><img src="http://taooka.com/blog/unhang.svg" alt="client 1 unhang" /></p>
+
+<p>С этим можно бороться. <a href="http://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html">Martin Kleppmann предлагает</a> использовать для защиты данных специальный счётчик fenceID, который автоинкрементируется при каждой блокировке и возвращается клиенту. И если случается описанная выше ситуация, то хранилище отвергает запросы с fenceID, меньшим, чем последний полученный.</p>
+
+<p><img src="http://taooka.com/blog/fenceID.svg" alt="client 1 rejected" /></p>
+
+<p>Такой подход работает для защиты данных в хранилище, но не удобен тем, что хранилище теперь не может оставаться просто хранилищем. От него требуется логика по обработке запросов от клиентов. Оно должно хранить fenceID для всех ключей, с которыми к нему обращались. Кроме того, он не учитывает следующую проблему. Если посмотреть на диаграмму, то мы увидим два процесса, выполняющих одну и ту же критическую секцию (код между взятием блокировки и её отпусканием). Т.е. теряет смысл вторая причина использования блокировок. Есть способ решить и эту проблему, и предыдущую.</p>
+
+<p>Когда менеджер распределённых блокировок узнаёт о том, что время жизни блокировки закончилось, он изолирует клиента, который её установил от внешнего мира, а только после этого отпускает установленную им блокировку, позволяя другим клиентам её взять. На практике изоляция клиента может производиться множеством способов:</p>
+
+<ul>
+<li>по ssh перезапустить клиентский процесс;</li>
+<li>перезапустить контейнер или виртуальую машину с клиентом;</li>
+<li>через Power Control в <a href="https://en.wikipedia.org/wiki/Intelligent_Platform_Management_Interface">Intelligent Platform Management Interface</a> перезагрузить сервер, на котором был запущен клиентский процесс;</li>
+<li>добавить ip клиента в чёрный список firewall-ов на тех серверах, с которыми он взаимодействует. А как сервер будет доступен, перезапустить клиента&hellip;</li>
+</ul>
+
+<p><img src="http://taooka.com/blog/isolate.svg" alt="isolate client 1" /></p>
+
+<p>Именно такой подход и реализован в Taooka. Он позволяет и реализовать монопольный доступ к данных, и гарантировать выполнение критической секции только в одном экземпляре.</p>
+
+<p>Надо заметить, что и в случае с fenceID, и в случае с изоляцией зависшего клиента, происходит неприятная вещь в работе с хранилищем: клиент может не закончить свою работу с ним полностью, а выполнить её лишь частично. Но если призадуматься, то требовать от клиента, работающего с хранилищем через сеть, каких-то гарантий невозможно. Сам клиент может неожиданно сломаться по описанным выше причинам. Сеть может пропасть. Так что нужно избегать множественных записей в хранилище и стараться ограничиваться одной записью или корректно обрабатывать частично записанные данные, например, каждый раз начиная все записи с начала и перезатирая частично записанные данные.</p>
+
+  </div>
+
+  <div id=links>
+    
+      <a class="basic-alignment left" href="http://taooka.com/blog/convenient-and-fast-api-on-golang/">&laquo; Удобный и быстрый API на Golang.</a>
+    
+    
+  </div>
+</section>
+
+  
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-85639-18', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</body>
+</html>
