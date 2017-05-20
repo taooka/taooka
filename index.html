@@ -402,13 +402,13 @@
 
 <h1 id="what-is-taooka">What is Taooka?</h1>
 
-<p>Taooka is distributed lock manager. It helps you organize multiple processes’ access to a shared or partitioned resource: change files chunked on some remote servers, rewrite records sharded in several databases, chose background jobs to process&hellip; Even if you simply save the user’s avatar on disk and change related record in the database, you need Taooka for consistency. This allows you to create consistent distributed storage on top of ordinary file systems and simple databases (like NoSQL) without complicated software.</p>
+<p>Taooka is distributed lock manager. It helps you organize multiple processes’ access to a shared or partitioned resource: change files chunked on some remote servers, rewrite records sharded in several databases, chose background jobs to process&hellip; Even if you simply save the user’s avatar on disk and change related record in the database, you need Taooka for consistency. This allows you to create consistent distributed storage on top of ordinary file systems and simple databases (like <a href="https://ru.wikipedia.org/wiki/NoSQL">NoSQL</a>) without complicated software.</p>
 
-<p>Taooka uses a <q>mutex (mutual exclusion)</q> that works over the network. The mutex is used for protecting parts of code from running concurrently. For example, you can try to lock the object, work with it and unlock it for another process. No one can work with a locked object, exclude you.</p>
+<p>Taooka uses a <a href="https://en.wikipedia.org/wiki/Lock_%28computer_science%29">mutex</a></q> that works over the network. The mutex is used for protecting parts of code from running concurrently. For example, you can try to lock the object, work with it and unlock it for another process. No one can work with a locked object, exclude you.</p>
 
-<p>Taooka prevents <q>race conditions</q> because it uses mutual exclusion to ensure that it is impossible to update the same part of the object at the same time.</p>
+<p>Taooka prevents <a href="https://en.wikipedia.org/wiki/Race_condition">race conditions</a> because it uses mutual exclusion to ensure that it is impossible to update the same part of the object at the same time.</p>
 
-<p>Taooka is <q>deadlock</q>-free. It uses try-lock instead of usual lock.</p>
+<p>Taooka is <a href="https://en.wikipedia.org/wiki/Deadlock">deadlock</a>-free. It uses try-lock instead of usual lock.</p>
 
 <h1 id="how-can-i-use-it">How can I use it?</h1>
 
@@ -418,12 +418,13 @@
 
 <ul>
 <li>lock ttl (time to live) in nanoseconds. You are not limited to 1 second accuracy;</li>
+<li>generate a special fenceID to prevent data corruption at storage;</li>
 <li>automatically detects broken clients and isolates them from the data they are working with;</li>
 <li>heartbeat for long lasting locks;</li>
 <li>uses a lightweight and simple binary protocol on top of UDP. This saves network resources, RAM and CPU for storing, copying, parsing text based protocols (HTTP, URL, JSON, XML, etc.) and maintaining a connection (TCP);</li>
 <li>crosspatform. Works on Linux, Mac OS, FreeBSD and Windows;</li>
 <li>no dependencies;</li>
-<li>easier to configure OS and network adapters for high load;</li>
+<li>suitable for high load;</li>
 <li>extremely fast.</li>
 </ul>
 
@@ -469,8 +470,8 @@
 
 <h2 id="linux">Linux</h2>
 
-<pre><code>$ wget http://taooka.com/dl/0.0.1-preview/taooka_0.0.1-preview_amd64.deb
-$ sudo dpkg -i taooka_0.0.1-preview_amd64.deb
+<pre><code>$ wget http://taooka.com/dl/1.17.0-free/taooka_1.17.0-free_amd64.deb
+$ sudo dpkg -i taooka_1.17.0-free_amd64.deb
 $ taooka -h
 $ taooka
 </code></pre>
@@ -500,9 +501,9 @@ if taooka.Lock(key, time.Minute) {
 }
 </code></pre>
 
-<h2 id="cas-check-and-set-alternative">CAS (Check And Set) alternative</h2>
+<h2 id="cas-check-and-swap-alternative">CAS (Check And Swap) alternative</h2>
 
-<p>Useful in cases with high concurrency, then the CAS command usually returns an &ldquo;EXISTS&rdquo; error.</p>
+<p>Useful in cases with high concurrency, then the <a href="https://github.com/memcached/memcached/wiki/Commands#cas">CAS</a> command usually returns an &ldquo;EXISTS&rdquo; error.</p>
 
 <pre><code>key = &quot;test_key&quot;
 if taooka.Lock(key, time.Minute) {
