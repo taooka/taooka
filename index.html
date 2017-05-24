@@ -448,7 +448,7 @@
 
 <h1 id="performance">Performance</h1>
 
-<p>More than 200000 requests per second on Linux box S5000PAL with Intel Xeon E5430 2.66GHz (2 CPUs x 4 cores), 2 integrated 1G NICs.</p>
+<p>More than 200000 locks per second on Linux box S5000PAL with Intel Xeon E5430 2.66GHz (2 CPUs x 4 cores), 2 integrated 1G NICs.</p>
 
 <h1 id="scaling-by-partitioning">Scaling by partitioning</h1>
 
@@ -470,15 +470,15 @@
 
 <h2 id="linux">Linux</h2>
 
-<pre><code>$ wget http://taooka.com/dl/1.17.0-free/taooka_1.17.0-free_amd64.deb
-$ sudo dpkg -i taooka_1.17.0-free_amd64.deb
+<pre><code>$ wget http://taooka.com/dl/latest/taooka_amd64.deb
+$ sudo dpkg -i taooka_amd64.deb
 $ taooka -h
 $ taooka
 </code></pre>
 
 <p>Start as daemon:</p>
 
-<pre><code>$ daemonize -v -p /var/run/taooka.pid -l /var/run/taooka.pid -u nobody -e /path/to/error.log /path/to/taooka
+<pre><code>$ daemonize -v -p /var/run/taooka.pid -l /var/run/taooka.pid -u nobody -e /path/to/error.log /usr/bin/taooka
 </code></pre>
 
 <h1 id="example">Example</h1>
