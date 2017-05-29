@@ -537,7 +537,7 @@ func main() {
 
 <p>There was a missed line numbered 167.</p>
 
-<p>You reasonably ask, why use Taooka, if the lock can be implemented using Redis: <a href="https://redis.io/topics/distlock">Redlock</a>. I will answer. There is an opinion that, <a href="http://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html">the Redlock algorithm is a poor choice</a>. You can read the description of the algorithm, Martin Kleppmann`s article и <a href="http://antirez.com/news/101">objections of the author Redlock</a> and decide for yourself whether Redlock is safe or not.  I think that Martin Kleppmann is right. Or use Taooka. It takes into account the problems described by Martin Kleppmann and allows to isolate the broken client from the data with which it operates. Until the isolation is complete, no other client can get a lock.</p>
+<p>You reasonably ask, why use Taooka, if the lock can be implemented using Redis: <a href="https://redis.io/topics/distlock">Redlock</a>. I will answer. There is an opinion that, <a href="http://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html">the Redlock algorithm is a poor choice</a>. You can read the description of the algorithm, Martin Kleppmann`s article и <a href="http://antirez.com/news/101">objections of the author Redlock</a> and decide for yourself whether Redlock is safe or not. I think that Martin Kleppmann is right. Or use Taooka. It takes into account the problems described by Martin Kleppmann and allows to isolate the broken client from the data with which it operates. Until the isolation is complete, no other client can get a lock.</p>
 
   </div>
 
